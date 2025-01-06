@@ -1,45 +1,45 @@
-# Python Day3 Code
+# Python Day4 Code
 
 ### Python DayWise
 
 ```python
 
-# Loop for PIN validation
-pin = input("Set your 4-digit PIN: ")
-while True:
-    entered_pin = input("Enter your 4-digit PIN to validate: ")
-    if entered_pin == pin:
-        print("PIN Verified!")
-        break  # Exit loop if PIN is correct
+# Function to validate PIN
+def validate_pin(pin, entered_pin):
+    return pin == entered_pin
+
+# Function to update balance
+def update_balance(current_balance, transaction_amount, transaction_type):
+    if transaction_type == "deposit":
+        return current_balance + transaction_amount
+    elif transaction_type == "withdraw":
+        if current_balance >= transaction_amount:
+            return current_balance - transaction_amount
+        else:
+            print("Insufficient balance!")
+            return current_balance
     else:
-        print("Incorrect PIN. Try again.")
+        print("Invalid transaction type.")
+        return current_balance
 
-# Menu with conditional logic
-print("\nATM Menu:")
-print("1. Check Balance")
-print("2. Deposit Cash")
-print("3. Withdraw Cash")
-print("4. Exit")
-choice = input("Choose an option (1-4): ")
-
-if choice == "1":
-    print("Check Balance selected.")
-elif choice == "2":
-    print("Deposit Cash selected.")
-elif choice == "3":
-    print("Withdraw Cash selected.")
-elif choice == "4":
-    print("Exit selected.")
+# Example usage
+pin = input("Set your 4-digit PIN: ")
+entered_pin = input("Enter your PIN to validate: ")
+if validate_pin(pin, entered_pin):
+    print("PIN Verified!")
+    balance = float(input("Enter your current balance: ₹"))
+    amount = float(input("Enter transaction amount: ₹"))
+    transaction_type = input("Enter transaction type (deposit/withdraw): ").lower()
+    balance = update_balance(balance, amount, transaction_type)
+    print(f"Updated Balance: ₹{balance}")
 else:
-    print("Invalid choice. Please try again.")
-
+    print("PIN Validation Failed!")
 
 
 ```
 
 ### Python Main Code
 ```python
-
 # User Registration
 print("--- User Registration ---")
 name = input("Enter your name: ")  # String
@@ -61,41 +61,63 @@ while len(pin) != 4 or not pin.isdigit():  # Loop for valid PIN
 print(f"\nRegistration Successful!")
 print(f"Name: {name}, Phone: {phone}, Balance: ₹{initial_balance}, PIN: {pin}")
 
-# Balance Operations
-print("\n--- Balance Operations ---")
+# Function to validate PIN
+def validate_pin(saved_pin, entered_pin):
+    return saved_pin == entered_pin
 
-while True:  # Loop for performing multiple operations
-    print("\nAvailable Operations:")
-    print("1. Deposit Amount")
-    print("2. Withdraw Amount")
-    print("3. Exit")
-    choice = input("Enter your choice (1/2/3): ")
-
-    if choice == "1":  # Deposit Operation
-        deposit_amount = float(input("Enter amount to deposit: ₹"))
-        while deposit_amount <= 0:  # Loop for valid deposit amount
-            print("Deposit amount must be greater than ₹0.")
-            deposit_amount = float(input("Enter amount to deposit: ₹"))
-        initial_balance += deposit_amount
-        print(f"Balance after deposit: ₹{initial_balance}")
-
-    elif choice == "2":  # Withdrawal Operation
-        withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-        while withdraw_amount <= 0:  # Loop for valid withdrawal amount
-            print("Withdrawal amount must be greater than ₹0.")
-            withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-        if withdraw_amount > initial_balance:  # Conditional check for balance
-            print("Insufficient balance!")
+# Function to update balance
+def update_balance(current_balance, transaction_amount, transaction_type):
+    if transaction_type == "deposit":
+        return current_balance + transaction_amount
+    elif transaction_type == "withdraw":
+        if current_balance >= transaction_amount:
+            return current_balance - transaction_amount
         else:
-            initial_balance -= withdraw_amount
-            print(f"Balance after withdrawal: ₹{initial_balance}")
+            print("Insufficient balance!")
+            return current_balance
+    else:
+        print("Invalid transaction type.")
+        return current_balance
 
-    elif choice == "3":  # Exit
-        print("Thank you for using our services. Goodbye!")
-        break
+# Balance Operations with PIN Validation
+print("\n--- Balance Operations ---")
+entered_pin = input("Enter your PIN to validate: ")
+if validate_pin(pin, entered_pin):  # Validate the PIN
+    print("PIN Verified!")
+    balance = initial_balance
 
-    else:  # Invalid Choice
-        print("Invalid choice. Please enter 1, 2, or 3.")
+    while True:  # Loop for multiple operations
+        print("\nAvailable Operations:")
+        print("1. Deposit Amount")
+        print("2. Withdraw Amount")
+        print("3. Exit")
+        choice = input("Enter your choice (1/2/3): ")
+
+        if choice == "1":  # Deposit Operation
+            deposit_amount = float(input("Enter amount to deposit: ₹"))
+            while deposit_amount <= 0:  # Validate deposit amount
+                print("Deposit amount must be greater than ₹0.")
+                deposit_amount = float(input("Enter amount to deposit: ₹"))
+            balance = update_balance(balance, deposit_amount, "deposit")
+            print(f"Balance after deposit: ₹{balance}")
+
+        elif choice == "2":  # Withdrawal Operation
+            withdraw_amount = float(input("Enter amount to withdraw: ₹"))
+            while withdraw_amount <= 0:  # Validate withdrawal amount
+                print("Withdrawal amount must be greater than ₹0.")
+                withdraw_amount = float(input("Enter amount to withdraw: ₹"))
+            balance = update_balance(balance, withdraw_amount, "withdraw")
+            print(f"Balance after withdrawal: ₹{balance}")
+
+        elif choice == "3":  # Exit
+            print("Thank you for using our services. Goodbye!")
+            break
+
+        else:  # Invalid Choice
+            print("Invalid choice. Please enter 1, 2, or 3.")
+else:
+    print("PIN Validation Failed!")
+
 
 
 ```
