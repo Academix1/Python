@@ -3,149 +3,215 @@
 ### Python DayWise
 
 ```python
-# List to store multiple accounts
-accounts = []
+import random
 
-# Add a new account
-name = input("Enter your name: ")
-phone = input("Enter your mobile number: ")
-try:
+class Account:
+    def __init__(self, name, phone, balance, pin):
+        self.name = name
+        self.phone = phone
+        self.balance = balance
+        self.pin = pin
+
+    # Function to check the account balance
+    def check_balance(self):
+        print(f"Your current balance is: ₹{self.balance}")
+
+    # Function to deposit cash into the account
+    def deposit_cash(self, amount):
+        if amount > 0:
+            self.balance += amount
+            print(f"₹{amount} deposited successfully!")
+            self.check_balance()
+        else:
+            print("Invalid amount. Please enter a positive number.")
+
+    # Function to withdraw cash from the account
+    def withdraw_cash(self, amount):
+        if amount <= 0:
+            print("Invalid amount. Please enter a positive number.")
+        elif amount > self.balance:
+            print("Insufficient balance!")
+        else:
+            self.balance -= amount
+            print(f"₹{amount} withdrawn successfully!")
+            self.check_balance()
+
+    # Function to reset the account PIN with OTP verification
+    def reset_pin(self):
+        phone_number = input("Enter your registered phone number: ")
+        if phone_number == self.phone:
+            otp = random.randint(1000, 9999)  # Generate a random 4-digit OTP
+            print(f"OTP sent to your phone: {otp}")
+
+            # Ask user to enter the OTP
+            entered_otp = int(input("Enter the OTP sent to your phone: "))
+            if entered_otp == otp:
+                new_pin = input("Enter your new 4-digit PIN: ")
+                self.pin = new_pin
+                print("PIN has been reset successfully!")
+            else:
+                print("Invalid OTP. Please try again.")
+        else:
+            print("Phone number doesn't match our records. Please check your details.")
+
+# Function for registering an account
+def register():
+    print("Registering your account...\n")
+    name = input("Enter your full name: ")
+    phone = input("Enter your phone number: ")
+    pin = input("Enter a 4-digit PIN: ")
     balance = float(input("Enter your initial deposit amount: ₹"))
-except ValueError:
-    balance = 0.0
-    print("Invalid input for balance. Setting it to ₹0.")
-pin = input("Set your 4-digit PIN: ")
 
-# Add to the accounts list
-accounts.append({"name": name, "phone": phone, "balance": balance, "pin": pin})
-print("Account successfully created!")
+    account = Account(name, phone, balance, pin)
+    print(f"Account registered successfully for {name}!")
+    return account
 
-# Access and update account
-for account in accounts:
-    if account["phone"] == phone:
-        print(f"Welcome, {account['name']}! Your balance is ₹{account['balance']}.")
-        new_balance = account["balance"] + 500  # Example deposit
-        account["balance"] = new_balance
-        print(f"After deposit, your balance is ₹{account['balance']}.")
+# Main ATM menu allowing interaction with account functions
+def main_menu(account):
+    while True:
+        print("\nATM Menu:")
+        print("1. Check Balance")
+        print("2. Deposit Cash")
+        print("3. Withdraw Cash")
+        print("4. Reset PIN")
+        print("5. Exit")
+        choice = input("Select an option (1-5): ")
 
+        if choice == "1":
+            account.check_balance()
 
+        elif choice == "2":
+            amount = float(input("Enter amount to deposit: ₹"))
+            account.deposit_cash(amount)
+
+        elif choice == "3":
+            amount = float(input("Enter amount to withdraw: ₹"))
+            account.withdraw_cash(amount)
+
+        elif choice == "4":
+            account.reset_pin()  # Reset PIN with OTP verification
+
+        elif choice == "5":
+            print("Exiting. Have a great day!")
+            break
+
+        else:
+            print("Invalid choice. Please select a valid option.")
+
+# Main entry point of the program
+if __name__ == "__main__":
+    print("Welcome to ATM Simulator!")
+
+    # Registering the account and skipping login process
+    account = register()
+    main_menu(account)
 
 ```
 
 ### Python Main Code
 ```python
-# List to store multiple accounts
-accounts = []
+import random
 
-# Function to validate PIN
-def validate_pin(account, entered_pin):
-    return account["pin"] == entered_pin
+class Account:
+    def __init__(self, name, phone, balance, pin):
+        self.name = name
+        self.phone = phone
+        self.balance = balance
+        self.pin = pin
 
-# Function to update balance
-def update_balance(current_balance, transaction_amount, transaction_type):
-    if transaction_type == "deposit":
-        return current_balance + transaction_amount
-    elif transaction_type == "withdraw":
-        if current_balance >= transaction_amount:
-            return current_balance - transaction_amount
+    # Function to check the account balance
+    def check_balance(self):
+        print(f"Your current balance is: ₹{self.balance}")
+
+    # Function to deposit cash into the account
+    def deposit_cash(self, amount):
+        if amount > 0:
+            self.balance += amount
+            print(f"₹{amount} deposited successfully!")
+            self.check_balance()
         else:
+            print("Invalid amount. Please enter a positive number.")
+
+    # Function to withdraw cash from the account
+    def withdraw_cash(self, amount):
+        if amount <= 0:
+            print("Invalid amount. Please enter a positive number.")
+        elif amount > self.balance:
             print("Insufficient balance!")
-            return current_balance
-    else:
-        print("Invalid transaction type.")
-        return current_balance
-
-# Function to create a new account
-def create_account():
-    print("\n--- Account Registration ---")
-    name = input("Enter your name: ")
-    phone = input("Enter your mobile number: ")
-    while len(phone) != 10 or not phone.isdigit():
-        print("Invalid phone number. Please enter a 10-digit number.")
-        phone = input("Enter your mobile number: ")
-    
-    balance = float(input("Enter your initial deposit amount: ₹"))
-    while balance <= 0:
-        print("Initial deposit must be greater than ₹0.")
-        balance = float(input("Enter your initial deposit amount: ₹"))
-    
-    pin = input("Set your 4-digit PIN: ")
-    while len(pin) != 4 or not pin.isdigit():
-        print("Invalid PIN. It must be a 4-digit number.")
-        pin = input("Set your 4-digit PIN: ")
-    
-    accounts.append({"name": name, "phone": phone, "balance": balance, "pin": pin})
-    print(f"\nAccount successfully created for {name}!")
-
-# Function to access an account and perform operations
-def access_account():
-    phone = input("Enter your registered mobile number: ")
-    account = next((acc for acc in accounts if acc["phone"] == phone), None)
-
-    if account:
-        entered_pin = input("Enter your 4-digit PIN: ")
-        if validate_pin(account, entered_pin):
-            print(f"\nWelcome, {account['name']}! Your current balance is ₹{account['balance']}.")
-
-            while True:
-                print("\nAvailable Operations:")
-                print("1. Deposit Amount")
-                print("2. Withdraw Amount")
-                print("3. View Balance")
-                print("4. Exit")
-                choice = input("Enter your choice (1/2/3/4): ")
-
-                if choice == "1":  # Deposit Operation
-                    deposit_amount = float(input("Enter amount to deposit: ₹"))
-                    while deposit_amount <= 0:
-                        print("Deposit amount must be greater than ₹0.")
-                        deposit_amount = float(input("Enter amount to deposit: ₹"))
-                    account["balance"] = update_balance(account["balance"], deposit_amount, "deposit")
-                    print(f"After deposit, your balance is ₹{account['balance']}.")
-
-                elif choice == "2":  # Withdrawal Operation
-                    withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-                    while withdraw_amount <= 0:
-                        print("Withdrawal amount must be greater than ₹0.")
-                        withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-                    account["balance"] = update_balance(account["balance"], withdraw_amount, "withdraw")
-                    print(f"After withdrawal, your balance is ₹{account['balance']}.")
-
-                elif choice == "3":  # View Balance
-                    print(f"Your current balance is ₹{account['balance']}.")
-
-                elif choice == "4":  # Exit
-                    print("Thank you for using our services. Goodbye!")
-                    break
-
-                else:  # Invalid Choice
-                    print("Invalid choice. Please enter 1, 2, 3, or 4.")
         else:
-            print("Incorrect PIN. Access denied.")
-    else:
-        print("Account not found. Please check the mobile number.")
+            self.balance -= amount
+            print(f"₹{amount} withdrawn successfully!")
+            self.check_balance()
 
-# Main Menu
-def main():
+    # Function to reset the account PIN with OTP verification
+    def reset_pin(self):
+        phone_number = input("Enter your registered phone number: ")
+        if phone_number == self.phone:
+            otp = random.randint(1000, 9999)  # Generate a random 4-digit OTP
+            print(f"OTP sent to your phone: {otp}")
+
+            # Ask user to enter the OTP
+            entered_otp = int(input("Enter the OTP sent to your phone: "))
+            if entered_otp == otp:
+                new_pin = input("Enter your new 4-digit PIN: ")
+                self.pin = new_pin
+                print("PIN has been reset successfully!")
+            else:
+                print("Invalid OTP. Please try again.")
+        else:
+            print("Phone number doesn't match our records. Please check your details.")
+
+# Function for registering an account
+def register():
+    print("Registering your account...\n")
+    name = input("Enter your full name: ")
+    phone = input("Enter your phone number: ")
+    pin = input("Enter a 4-digit PIN: ")
+    balance = float(input("Enter your initial deposit amount: ₹"))
+
+    account = Account(name, phone, balance, pin)
+    print(f"Account registered successfully for {name}!")
+    return account
+
+# Main ATM menu allowing interaction with account functions
+def main_menu(account):
     while True:
-        print("\n--- ATM System ---")
-        print("1. Create Account")
-        print("2. Access Account")
-        print("3. Exit")
-        choice = input("Enter your choice (1/2/3): ")
+        print("\nATM Menu:")
+        print("1. Check Balance")
+        print("2. Deposit Cash")
+        print("3. Withdraw Cash")
+        print("4. Reset PIN")
+        print("5. Exit")
+        choice = input("Select an option (1-5): ")
 
         if choice == "1":
-            create_account()
-        elif choice == "2":
-            access_account()
-        elif choice == "3":
-            print("Thank you for using the ATM System. Goodbye!")
-            break
-        else:
-            print("Invalid choice. Please enter 1, 2, or 3.")
+            account.check_balance()
 
-# Run the program
+        elif choice == "2":
+            amount = float(input("Enter amount to deposit: ₹"))
+            account.deposit_cash(amount)
+
+        elif choice == "3":
+            amount = float(input("Enter amount to withdraw: ₹"))
+            account.withdraw_cash(amount)
+
+        elif choice == "4":
+            account.reset_pin()  # Reset PIN with OTP verification
+
+        elif choice == "5":
+            print("Exiting. Have a great day!")
+            break
+
+        else:
+            print("Invalid choice. Please select a valid option.")
+
+# Main entry point of the program
 if __name__ == "__main__":
-    main()
+    print("Welcome to ATM Simulator!")
+
+    # Registering the account and skipping login process
+    account = register()
+    main_menu(account)
+
 
 ```
