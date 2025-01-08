@@ -1,5 +1,5 @@
 # Python Day5 Code
-## Arrays
+## Collections
 ### Python DayWise
 
 ```python
