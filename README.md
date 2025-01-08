@@ -1,6 +1,6 @@
 # Python Day6 Code
 
-## Concept:Classes and Objects
+## Concept:Classes and Objects(OOPS)
 
 ### Python DayWise
 
