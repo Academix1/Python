@@ -123,4 +123,3 @@ Here are questions based on classes, objects, and OOP principles used in the pro
             pass
     ```
 
-Let me know if you'd like more questions or clarifications!
