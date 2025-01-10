@@ -1,4 +1,4 @@
-Here are some questions based on collections and the provided code:
+
 
 1. **How would you store multiple accounts in a list and access each account's details?**
 
@@ -100,4 +100,4 @@ Here are some questions based on collections and the provided code:
         # Add the account
     ```
 
-Let me know if you need further assistance!
+
