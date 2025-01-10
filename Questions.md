@@ -126,5 +126,3 @@ Here are the answers to the questions based on the code:
            print("Invalid transaction type.")
            return current_balance
    ```
-
-Let me know if you need further clarification!
