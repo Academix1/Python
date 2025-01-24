@@ -42,62 +42,39 @@ else:
 ### Python Main Code
 ```python
 
-# User Registration
-print("--- User Registration ---")
-name = input("Enter your name: ")  # String
-phone = input("Enter your mobile number: ")  # String
-while len(phone) != 10 or not phone.isdigit():  # Loop for valid phone number
-    print("Invalid phone number. Please enter a 10-digit number.")
-    phone = input("Enter your mobile number: ")
+name=str(input("Enter Name"))
 
-initial_balance = float(input("Enter your initial deposit amount: ₹"))  # Float
-while initial_balance <= 0:  # Loop for valid initial deposit
-    print("Initial deposit must be greater than ₹0.")
-    initial_balance = float(input("Enter your initial deposit amount: ₹"))
+inital_balance=float(input("Enter Your balance"))
+while inital_balance<=0:
+    print("Balance Should be > than 0")
+    inital_balance=float(input("Enter Your Balance "))
 
-pin = input("Set your 4-digit PIN: ")  # String
-while len(pin) != 4 or not pin.isdigit():  # Loop for valid PIN
-    print("Invalid PIN. It must be a 4-digit number.")
-    pin = input("Set your 4-digit PIN: ")
+pin=input("Enter Your Pin")
+while len(pin)!=4 or not pin.isdigit():
+    print("Invalid Pin Enter 4 Digit PIN(Number)")
+    pin=input("Enter the PIN")
 
-print(f"\nRegistration Successful!")
-print(f"Name: {name}, Phone: {phone}, Balance: ₹{initial_balance}, PIN: {pin}")
+while True:
+    print("1.Deposit")
+    print("2.Witdrawl")
+    print("3.Exit")
+    choice=int(input("Enter Your Choice 1/2/3"))
 
-# Balance Operations
-print("\n--- Balance Operations ---")
-
-while True:  # Loop for performing multiple operations
-    print("\nAvailable Operations:")
-    print("1. Deposit Amount")
-    print("2. Withdraw Amount")
-    print("3. Exit")
-    choice = input("Enter your choice (1/2/3): ")
-
-    if choice == "1":  # Deposit Operation
-        deposit_amount = float(input("Enter amount to deposit: ₹"))
-        while deposit_amount <= 0:  # Loop for valid deposit amount
-            print("Deposit amount must be greater than ₹0.")
-            deposit_amount = float(input("Enter amount to deposit: ₹"))
-        initial_balance += deposit_amount
-        print(f"Balance after deposit: ₹{initial_balance}")
-
-    elif choice == "2":  # Withdrawal Operation
-        withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-        while withdraw_amount <= 0:  # Loop for valid withdrawal amount
-            print("Withdrawal amount must be greater than ₹0.")
-            withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-        if withdraw_amount > initial_balance:  # Conditional check for balance
-            print("Insufficient balance!")
+    if choice==1:
+        deposit=float(input("Enter Your Deposit Amount :"))
+        inital_balance+=deposit
+    elif choice==2:
+        withdrawl=float(input("Enter Your Number: "))
+        while withdrawl>inital_balance:
+            print("Withdrtawl Should be lessthan Inital Balance")
+            withdrawl=float(input("Enter Your Withdrawl: "))
+        if inital_balance>withdrawl:
+            inital_balance-=withdrawl
+            print("Initial balance after Withdrawl ",inital_balance)
         else:
-            initial_balance -= withdraw_amount
-            print(f"Balance after withdrawal: ₹{initial_balance}")
-
-    elif choice == "3":  # Exit
-        print("Thank you for using our services. Goodbye!")
+            print("Insufficient Funds")
+    elif choice>=3:
+        print("Thanks For Visiting !")
         break
-
-    else:  # Invalid Choice
-        print("Invalid choice. Please enter 1, 2, or 3.")
-
 
 ```
