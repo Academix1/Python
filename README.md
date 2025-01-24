@@ -17,11 +17,15 @@ print(f"Name: {name}, Phone: {phone}, Balance: ₹{initial_balance}, PIN: {pin}"
 ### Python Main Code
 ```python
 # Collecting user data for demonstration
+//[pause]
 name = input("Enter your name: ")  # String
+//[pause]
 phone = input("Enter your mobile number: ")  # String for storing phone numbers
+//[pause]
 initial_balance = float(input("Enter your initial deposit amount: ₹"))  # Float
+//[pause]
 pin = input("Set your 4-digit PIN: ")  # String
-
+//[pause]
 print(f"Name: {name}, Phone: {phone}, Balance: ₹{initial_balance}, PIN: {pin}")
 
 ```
