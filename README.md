@@ -29,7 +29,6 @@ def withdraw(balance, wamount):
     balance -= wamount
     return balance
 
-//[pause]
 transaction_history = []
 
 while True:
@@ -40,9 +39,7 @@ while True:
             print("\nOptions:")
             print("1. Deposit")
             print("2. Withdraw")
-            //[pause]
             print("3. View Transaction History")
-            //[pause]
             print("4. Exit")
             choice = input("Enter your choice: ")
 
@@ -60,20 +57,19 @@ while True:
                 transaction_history.append(
                     {"Type": "Withdraw", "Amount": withdrawal_amount, "Balance": initial_balance}
                 )
-                print(f"Your current balance is: {initial_balance}")
-             //[pause]   
-            elif choice == "3":
-                //[pause]
+                print(f"Your current balance is: {initial_balance}") 
+
+             elif choice == "3":
                 if not transaction_history:
                     print("No transactions available.")
-                    //[pause]
+                    
                 else:
                     print("\nTransaction History:")
-                    //[pause]
+                    
                     for index, transaction in enumerate(transaction_history, start=1):
-                    //[pause]
+                    
                         print(f"{index}. {transaction['Type']} - Amount: {transaction['Amount']} - Balance: {transaction['Balance']}")
-                      //[pause]  
+                     
 
             elif choice == "4":
                 print("Goodbye!")
