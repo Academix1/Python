@@ -3,149 +3,85 @@
 ### Python DayWise
 
 ```python
-# List to store multiple accounts
-accounts = []
+name = input("Enter Name: ")
+initial_balance = float(input("Enter Your Balance: "))
+while initial_balance <= 0:
+    print("Balance Should be greater than 0.")
+    initial_balance = float(input("Enter Your Balance: "))
 
-# Add a new account
-name = input("Enter your name: ")
-phone = input("Enter your mobile number: ")
-try:
-    balance = float(input("Enter your initial deposit amount: ₹"))
-except ValueError:
-    balance = 0.0
-    print("Invalid input for balance. Setting it to ₹0.")
-pin = input("Set your 4-digit PIN: ")
+pin = input("Set Your PIN (4-digit): ")
 
-# Add to the accounts list
-accounts.append({"name": name, "phone": phone, "balance": balance, "pin": pin})
-print("Account successfully created!")
+while len(pin) != 4 or not pin.isdigit():
+    print("Invalid PIN. Enter a 4-digit numeric PIN.")
+    pin = input("Set Your PIN (4-digit): ")
 
-# Access and update account
-for account in accounts:
-    if account["phone"] == phone:
-        print(f"Welcome, {account['name']}! Your balance is ₹{account['balance']}.")
-        new_balance = account["balance"] + 500  # Example deposit
-        account["balance"] = new_balance
-        print(f"After deposit, your balance is ₹{account['balance']}.")
+def validate_pin(stored_pin, entered_pin):
+    return stored_pin == entered_pin
 
+def deposit(balance, damount):
+    balance += damount
+    return balance
 
+def withdraw(balance, wamount):
+    while wamount > balance:
+        print("Withdrawal amount should not exceed the current balance.")
+        wamount = float(input("Enter a valid Withdrawal Amount: "))
+    balance -= wamount
+    return balance
 
-```
+//[pause]
+transaction_history = []
 
-### Python Main Code
-```python
-# List to store multiple accounts
-accounts = []
+while True:
+    re_rentered_pin = input("Enter Your PIN: ")
+    if validate_pin(pin, re_rentered_pin):
+        print(f"Welcome {name}!")
+        while True:
+            print("\nOptions:")
+            print("1. Deposit")
+            print("2. Withdraw")
+            //[pause]
+            print("3. View Transaction History")
+            //[pause]
+            print("4. Exit")
+            choice = input("Enter your choice: ")
 
-# Function to validate PIN
-def validate_pin(account, entered_pin):
-    return account["pin"] == entered_pin
+            if choice == "1":
+                deposit_amount = float(input("Enter the amount to deposit: "))
+                initial_balance = deposit(initial_balance, deposit_amount)
+                transaction_history.append(
+                    {"Type": "Deposit", "Amount": deposit_amount, "Balance": initial_balance}
+                )
+                print(f"Your current balance is: {initial_balance}")
 
-# Function to update balance
-def update_balance(current_balance, transaction_amount, transaction_type):
-    if transaction_type == "deposit":
-        return current_balance + transaction_amount
-    elif transaction_type == "withdraw":
-        if current_balance >= transaction_amount:
-            return current_balance - transaction_amount
-        else:
-            print("Insufficient balance!")
-            return current_balance
+            elif choice == "2":
+                withdrawal_amount = float(input("Enter the amount to withdraw: "))
+                initial_balance = withdraw(initial_balance, withdrawal_amount)
+                transaction_history.append(
+                    {"Type": "Withdraw", "Amount": withdrawal_amount, "Balance": initial_balance}
+                )
+                print(f"Your current balance is: {initial_balance}")
+             //[pause]   
+            elif choice == "3":
+                //[pause]
+                if not transaction_history:
+                    print("No transactions available.")
+                    //[pause]
+                else:
+                    print("\nTransaction History:")
+                    //[pause]
+                    for index, transaction in enumerate(transaction_history, start=1):
+                    //[pause]
+                        print(f"{index}. {transaction['Type']} - Amount: {transaction['Amount']} - Balance: {transaction['Balance']}")
+                      //[pause]  
+
+            elif choice == "4":
+                print("Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
     else:
-        print("Invalid transaction type.")
-        return current_balance
+        print("Incorrect PIN. Please try again.")
 
-# Function to create a new account
-def create_account():
-    print("\n--- Account Registration ---")
-    name = input("Enter your name: ")
-    phone = input("Enter your mobile number: ")
-    while len(phone) != 10 or not phone.isdigit():
-        print("Invalid phone number. Please enter a 10-digit number.")
-        phone = input("Enter your mobile number: ")
-    
-    balance = float(input("Enter your initial deposit amount: ₹"))
-    while balance <= 0:
-        print("Initial deposit must be greater than ₹0.")
-        balance = float(input("Enter your initial deposit amount: ₹"))
-    
-    pin = input("Set your 4-digit PIN: ")
-    while len(pin) != 4 or not pin.isdigit():
-        print("Invalid PIN. It must be a 4-digit number.")
-        pin = input("Set your 4-digit PIN: ")
-    
-    accounts.append({"name": name, "phone": phone, "balance": balance, "pin": pin})
-    print(f"\nAccount successfully created for {name}!")
-
-# Function to access an account and perform operations
-def access_account():
-    phone = input("Enter your registered mobile number: ")
-    account = next((acc for acc in accounts if acc["phone"] == phone), None)
-
-    if account:
-        entered_pin = input("Enter your 4-digit PIN: ")
-        if validate_pin(account, entered_pin):
-            print(f"\nWelcome, {account['name']}! Your current balance is ₹{account['balance']}.")
-
-            while True:
-                print("\nAvailable Operations:")
-                print("1. Deposit Amount")
-                print("2. Withdraw Amount")
-                print("3. View Balance")
-                print("4. Exit")
-                choice = input("Enter your choice (1/2/3/4): ")
-
-                if choice == "1":  # Deposit Operation
-                    deposit_amount = float(input("Enter amount to deposit: ₹"))
-                    while deposit_amount <= 0:
-                        print("Deposit amount must be greater than ₹0.")
-                        deposit_amount = float(input("Enter amount to deposit: ₹"))
-                    account["balance"] = update_balance(account["balance"], deposit_amount, "deposit")
-                    print(f"After deposit, your balance is ₹{account['balance']}.")
-
-                elif choice == "2":  # Withdrawal Operation
-                    withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-                    while withdraw_amount <= 0:
-                        print("Withdrawal amount must be greater than ₹0.")
-                        withdraw_amount = float(input("Enter amount to withdraw: ₹"))
-                    account["balance"] = update_balance(account["balance"], withdraw_amount, "withdraw")
-                    print(f"After withdrawal, your balance is ₹{account['balance']}.")
-
-                elif choice == "3":  # View Balance
-                    print(f"Your current balance is ₹{account['balance']}.")
-
-                elif choice == "4":  # Exit
-                    print("Thank you for using our services. Goodbye!")
-                    break
-
-                else:  # Invalid Choice
-                    print("Invalid choice. Please enter 1, 2, 3, or 4.")
-        else:
-            print("Incorrect PIN. Access denied.")
-    else:
-        print("Account not found. Please check the mobile number.")
-
-# Main Menu
-def main():
-    while True:
-        print("\n--- ATM System ---")
-        print("1. Create Account")
-        print("2. Access Account")
-        print("3. Exit")
-        choice = input("Enter your choice (1/2/3): ")
-
-        if choice == "1":
-            create_account()
-        elif choice == "2":
-            access_account()
-        elif choice == "3":
-            print("Thank you for using the ATM System. Goodbye!")
-            break
-        else:
-            print("Invalid choice. Please enter 1, 2, or 3.")
-
-# Run the program
-if __name__ == "__main__":
-    main()
 
 ```
