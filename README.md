@@ -2,348 +2,165 @@
 
 ## Concept:File Handling
 
-### Python DayWise
-
-```python
-# Day2 - File Handling: Saving account details in user_data.txt and OTP in otp_data.txt
-
-# In Day2, Account class includes update_account_file to save changes to user_data.txt
-def update_account_file(self):
-    # Read the current account data from user_data.txt
-    with open("user_data.txt", "r") as user_file:
-        lines = user_file.readlines()
-
-    # Find the line that matches the phone number (for the correct account)
-    for i, line in enumerate(lines):
-        user_data = line.strip().split(',')
-        if user_data[1] == self.phone:
-            # Update the line with the new balance and PIN
-            lines[i] = f"{self.name},{self.phone},{self.balance},{self.pin}\n"
-            break
-    
-    # Write the updated data back to user_data.txt
-    with open("user_data.txt", "w") as user_file:
-        user_file.writelines(lines)
-
-# In Day2, OTP is stored in otp_data.txt with the creation time
-def reset_pin(self):
-    phone_number = input("Enter your registered phone number: ")
-    if phone_number == self.phone:
-        otp = random.randint(1000, 9999)  # Generate a random 4-digit OTP
-        otp_creation_time = time.time()  # Record the time when OTP is generated
-
-        # Save the OTP and time to otp_data.txt
-        with open("otp_data.txt", "w") as otp_file:
-            otp_file.write(f"{otp},{otp_creation_time}\n")
-
-        print(f"OTP generated: {otp}. You have 5 minutes to enter it.")
-        
-        # Ask user to enter the OTP
-        entered_otp = int(input("Enter the OTP sent to your phone: "))
-        
-        # Read the OTP and its creation time from otp_data.txt
-        with open("otp_data.txt", "r") as otp_file:
-            saved_otp, saved_time = otp_file.readline().strip().split(',')
-            saved_otp = int(saved_otp)
-            saved_time = float(saved_time)
-
-        # Check if OTP is correct and within the time limit (5 minutes)
-        if entered_otp == saved_otp:
-            if time.time() - saved_time <= 300:  # 5 minutes = 300 seconds
-                new_pin = input("Enter your new 4-digit PIN: ")
-                self.pin = new_pin
-                print("PIN has been reset successfully!")
-                self.update_account_file()  # Update account details in the file
-            else:
-                print("OTP has expired. Please request a new OTP.")
-        else:
-            print("Invalid OTP. Please try again.")
-    else:
-        print("Phone number doesn't match our records. Please check your details.")
-
-# Day2 - Login Function
-def login():
-    print("Login to your account...\n")
-    pin = input("Enter your 4-digit PIN: ")
-
-    # Read user data from user_data.txt
-    with open("user_data.txt", "r") as user_file:
-        user_data = user_file.readlines()
-    
-    for line in user_data:
-        user_details = line.strip().split(',')
-        stored_phone = user_details[1]
-        stored_pin = user_details[3]
-        
-        if pin == stored_pin:
-            # Login successful, return Account object
-            print("Login successful!")
-            account = Account(user_details[0], stored_phone, float(user_details[2]), stored_pin)
-            return account
-    print("Invalid phone number or PIN. Please try again.")
-    return None
-
-# Day2 - Main Menu Adjustments to allow login process and logout option
-def main_menu(account):
-    while True:
-        print("\nATM Menu:")
-        print("1. Check Balance")
-        print("2. Deposit Cash")
-        print("3. Withdraw Cash")
-        print("4. Reset PIN")
-        print("5. Logout")
-        choice = input("Select an option (1-5): ")
-
-        if choice == "1":
-            account.check_balance()
-            break  # After completing the action, exit to login screen
-
-        elif choice == "2":
-            amount = float(input("Enter amount to deposit: ₹"))
-            account.deposit_cash(amount)
-            break  # After completing the action, exit to login screen
-
-        elif choice == "3":
-            amount = float(input("Enter amount to withdraw: ₹"))
-            account.withdraw_cash(amount)
-            break  # After completing the action, exit to login screen
-
-        elif choice == "4":
-            account.reset_pin()  # Reset PIN with OTP verification
-            break  # After completing the action, exit to login screen
-
-        elif choice == "5":
-            print("Logging out...")
-            break  # Break the loop and go back to the main login/register screen
-
-        else:
-            print("Invalid choice. Please select a valid option.")
-
-# Day2 - Login flow in the main entry point
-if __name__ == "__main__":
-    while True:
-        print("\nWelcome to ATM Simulator!")
-        print("1. Register")
-        print("2. Login")
-        print("3. Exit")
-        option = input("Select an option (1-3): ")
-
-        if option == "1":
-            account = register()
-            main_menu(account)
-            continue  # After completing the actions, continue to the main login/register menu
-
-        elif option == "2":
-            account = login()
-            if account:
-                main_menu(account)
-                continue  # After completing the actions, continue to the main login/register menu
-
-        elif option == "3":
-            print("Exiting. Have a great day!")
-            break
-
-        else:
-            print("Invalid choice. Please select a valid option.")
-
-
-```
-
-### Python Main Code
 ```python
 import random
-import time
+import json
+import os
 
-class Account:
-    def __init__(self, name, phone, balance, pin):
+class ATM:
+    def __init__(self, name, initial_balance, pin):
         self.name = name
-        self.phone = phone
-        self.balance = balance
+        self.balance = initial_balance
         self.pin = pin
 
-    # Function to check the account balance
-    def check_balance(self):
-        print(f"Your current balance is: ₹{self.balance}")
+    def validate_pin(self, entered_pin):
+        return self.pin == entered_pin
 
-    # Function to deposit cash into the account
-    def deposit_cash(self, amount):
-        if amount > 0:
-            self.balance += amount
-            print(f"₹{amount} deposited successfully!")
-            self.check_balance()
-            self.update_account_file()  # Update account details in the file
+    def deposit(self, amount):
+        self.balance += amount
+        self.save_transaction_history("Deposit", amount)
+        self.save_account_details()
+        return self.balance
+
+    def withdraw(self, amount):
+        while amount > self.balance:
+            print("Withdrawal amount should not exceed the current balance.")
+            amount = float(input("Enter a valid Withdrawal Amount: "))
+        self.balance -= amount
+        self.save_transaction_history("Withdraw", amount)
+        self.save_account_details()
+        return self.balance
+
+    def save_transaction_history(self, transaction_type, amount):
+        if os.path.exists("transaction_data.json"):
+            with open("transaction_data.json", "r") as file:
+                transaction_data = json.load(file)
         else:
-            print("Invalid amount. Please enter a positive number.")
+            transaction_data = {}
 
-    # Function to withdraw cash from the account
-    def withdraw_cash(self, amount):
-        if amount <= 0:
-            print("Invalid amount. Please enter a positive number.")
-        elif amount > self.balance:
-            print("Insufficient balance!")
+        if self.name not in transaction_data:
+            transaction_data[self.name] = []
+
+        transaction_data[self.name].append({
+            "Type": transaction_type,
+            "Amount": amount,
+            "Balance": self.balance
+        })
+
+        with open("transaction_data.json", "w") as file:
+            json.dump(transaction_data, file, indent=4)
+
+    def save_account_details(self):
+        if os.path.exists("user_data.json"):
+            with open("user_data.json", "r") as file:
+                user_data = json.load(file)
         else:
-            self.balance -= amount
-            print(f"₹{amount} withdrawn successfully!")
-            self.check_balance()
-            self.update_account_file()  # Update account details in the file
+            user_data = {}
 
-    # Function to reset the account PIN with OTP verification
-    def reset_pin(self):
-        phone_number = input("Enter your registered phone number: ")
-        if phone_number == self.phone:
-            otp = random.randint(1000, 9999)  # Generate a random 4-digit OTP
-            otp_creation_time = time.time()  # Record the time when OTP is generated
+        user_data[self.name] = {
+            "Balance": self.balance,
+            "PIN": self.pin
+        }
 
-            # Save the OTP and time to otp_data.txt
-            with open("otp_data.txt", "w") as otp_file:
-                otp_file.write(f"{otp},{otp_creation_time}\n")
+        with open("user_data.json", "w") as file:
+            json.dump(user_data, file, indent=4)
 
-            print(f"OTP generated: {otp}. You have 5 minutes to enter it.")
+    def get_account_balance(self):
+        return self.balance
 
-            # Ask user to enter the OTP
-            entered_otp = int(input("Enter the OTP sent to your phone: "))
-            
-            # Read the OTP and its creation time from otp_data.txt
-            with open("otp_data.txt", "r") as otp_file:
-                saved_otp, saved_time = otp_file.readline().strip().split(',')
-                saved_otp = int(saved_otp)
-                saved_time = float(saved_time)
+    def get_transaction_history(self):
+        if os.path.exists("transaction_data.json"):
+            with open("transaction_data.json", "r") as file:
+                transaction_data = json.load(file)
+            return transaction_data.get(self.name, [])
+        return []
 
-            # Check if OTP is correct and within the time limit (5 minutes)
-            if entered_otp == saved_otp:
-                if time.time() - saved_time <= 300:  # 5 minutes = 300 seconds
-                    new_pin = input("Enter your new 4-digit PIN: ")
-                    self.pin = new_pin
-                    print("PIN has been reset successfully!")
-                    self.update_account_file()  # Update account details in the file
+
+def generate_otp():
+    return random.randint(100000, 999999)
+
+def validate_otp(sent_otp):
+    entered_otp = int(input("Enter the OTP sent to your registered number: "))
+    return sent_otp == entered_otp
+
+
+def create_or_login():
+    name = input("Enter Name: ")
+    if os.path.exists("user_data.json"):
+        with open("user_data.json", "r") as file:
+            user_data = json.load(file)
+        if name in user_data:
+            print(f"Welcome back, {name}!")
+            return name, user_data[name]["Balance"], user_data[name]["PIN"]
+        else:
+            print(f"User {name} not found. Proceeding with account creation.")
+    else:
+        print("No users found. Proceeding with account creation.")
+
+    initial_balance = float(input("Enter Your Balance: "))
+    while initial_balance <= 0:
+        print("Balance should be greater than 0.")
+        initial_balance = float(input("Enter Your Balance: "))
+
+    pin = input("Set Your PIN (4-digit): ")
+    while len(pin) != 4 or not pin.isdigit():
+        print("Invalid PIN. Enter a 4-digit numeric PIN.")
+        pin = input("Set Your PIN (4-digit): ")
+
+    otp = generate_otp()
+    print(f"OTP for account creation is: {otp}")
+    if not validate_otp(otp):
+        print("OTP verification failed. Account creation aborted.")
+        exit()
+
+    return name, initial_balance, pin
+
+
+name, initial_balance, pin = create_or_login()
+
+atm = ATM(name, initial_balance, pin)
+
+if name not in os.listdir():
+    atm.save_account_details()
+
+while True:
+    entered_pin = input("Enter Your PIN: ")
+    if atm.validate_pin(entered_pin):
+        print(f"Welcome {atm.name}!")
+        while True:
+            print("\nOptions:")
+            print("1. Deposit")
+            print("2. Withdraw")
+            print("3. View Transaction History")
+            print("4. Exit")
+            choice = input("Enter your choice: ")
+
+            if choice == "1":
+                deposit_amount = float(input("Enter the amount to deposit: "))
+                atm.deposit(deposit_amount)
+                print(f"Your current balance is: {atm.get_account_balance()}")
+
+            elif choice == "2":
+                withdrawal_amount = float(input("Enter the amount to withdraw: "))
+                atm.withdraw(withdrawal_amount)
+                print(f"Your current balance is: {atm.get_account_balance()}")
+
+            elif choice == "3":
+                transactions = atm.get_transaction_history()
+                if transactions:
+                    print("\nTransaction History:")
+                    for index, transaction in enumerate(transactions, start=1):
+                        print(f"{index}. {transaction['Type']} - Amount: {transaction['Amount']} - Balance: {transaction['Balance']}")
                 else:
-                    print("OTP has expired. Please request a new OTP.")
-            else:
-                print("Invalid OTP. Please try again.")
-        else:
-            print("Phone number doesn't match our records. Please check your details.")
+                    print("No transactions available.")
 
-    # Function to update the account file with new details
-    def update_account_file(self):
-        # Read the current account data from user_data.txt
-        with open("user_data.txt", "r") as user_file:
-            lines = user_file.readlines()
-
-        # Find the line that matches the phone number (for the correct account)
-        for i, line in enumerate(lines):
-            user_data = line.strip().split(',')
-            if user_data[1] == self.phone:
-                # Update the line with the new balance and PIN
-                lines[i] = f"{self.name},{self.phone},{self.balance},{self.pin}\n"
+            elif choice == "4":
+                print("Goodbye!")
                 break
-        
-        # Write the updated data back to user_data.txt
-        with open("user_data.txt", "w") as user_file:
-            user_file.writelines(lines)
-
-# Function for registering an account
-def register():
-    print("Registering your account...\n")
-    name = input("Enter your full name: ")
-    phone = input("Enter your phone number: ")
-    pin = input("Enter a 4-digit PIN: ")
-    balance = float(input("Enter your initial deposit amount: ₹"))
-
-    # Save user data to user_data.txt
-    with open("user_data.txt", "w") as user_file:
-        user_file.write(f"{name},{phone},{balance},{pin}\n")
-    
-    account = Account(name, phone, balance, pin)
-    print(f"Account registered successfully for {name}!")
-    return account
-
-# Function for logging into an existing account
-def login():
-    print("Login to your account...\n")
-    pin = input("Enter your 4-digit PIN: ")
-
-    # Read user data from user_data.txt
-    with open("user_data.txt", "r") as user_file:
-        user_data = user_file.readlines()
-    
-    for line in user_data:
-        user_details = line.strip().split(',')
-        stored_phone = user_details[1]
-        stored_pin = user_details[3]
-        
-        if pin == stored_pin:
-            # Login successful, return Account object
-            print("Login successful!")
-            account = Account(user_details[0], stored_phone, float(user_details[2]), stored_pin)
-            return account
-    print("Invalid phone number or PIN. Please try again.")
-    return None
-
-# Main ATM menu allowing interaction with account functions
-# Main ATM menu allowing interaction with account functions
-def main_menu(account):
-    while True:
-        print("\nATM Menu:")
-        print("1. Check Balance")
-        print("2. Deposit Cash")
-        print("3. Withdraw Cash")
-        print("4. Reset PIN")
-        print("5. Logout")
-        choice = input("Select an option (1-5): ")
-
-        if choice == "1":
-            account.check_balance()
-            break  # After completing the action, exit to login screen
-
-        elif choice == "2":
-            amount = float(input("Enter amount to deposit: ₹"))
-            account.deposit_cash(amount)
-            break  # After completing the action, exit to login screen
-
-        elif choice == "3":
-            amount = float(input("Enter amount to withdraw: ₹"))
-            account.withdraw_cash(amount)
-            break  # After completing the action, exit to login screen
-
-        elif choice == "4":
-            account.reset_pin()  # Reset PIN with OTP verification
-            break  # After completing the action, exit to login screen
-
-        elif choice == "5":
-            print("Logging out...")
-            break  # Break the loop and go back to the main login/register screen
-
-        else:
-            print("Invalid choice. Please select a valid option.")
-
-
-# Main entry point of the program
-if __name__ == "__main__":
-    while True:
-        print("\nWelcome to ATM Simulator!")
-        print("1. Register")
-        print("2. Login")
-        print("3. Exit")
-        option = input("Select an option (1-3): ")
-
-        if option == "1":
-            account = register()
-            main_menu(account)
-            continue  # After completing the actions, continue to the main login/register menu
-
-        elif option == "2":
-            account = login()
-            if account:
-                main_menu(account)
-                continue  # After completing the actions, continue to the main login/register menu
-
-        elif option == "3":
-            print("Exiting. Have a great day!")
-            break
-
-        else:
-            print("Invalid choice. Please select a valid option.")
-
-
+            else:
+                print("Invalid choice. Please try again.")
+        break
+    else:
+        print("Incorrect PIN. Please try again.")
 
 ```
